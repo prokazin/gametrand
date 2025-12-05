@@ -15,6 +15,33 @@ header {
     margin-bottom: 10px;
 }
 
+.tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 6px;
+    color: white;
+}
+
+.tab.active {
+    background: #0077ff;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 .coin-selector {
     display: flex;
     gap: 10px;
@@ -31,32 +58,35 @@ header {
 }
 
 .trade-panel {
-    margin-top: 10px;
     display: flex;
     justify-content: space-between;
+    margin-top: 10px;
 }
 
 .trade-panel button {
     padding: 10px;
     border: none;
-    flex: 1;
-    margin: 0 5px;
-    border-radius: 6px;
     background: #0077ff;
     color: white;
-}
-
-.position {
-    margin-top: 10px;
-    background: #1a1a1a;
-    padding: 10px;
+    flex: 1;
+    margin-left: 10px;
     border-radius: 6px;
 }
 
-#history {
-    margin-top: 10px;
-    padding: 10px;
+.position-item, .history-item {
     background: #1a1a1a;
+    padding: 10px;
     border-radius: 6px;
+    margin-bottom: 8px;
     font-size: 14px;
+}
+
+.close-btn {
+    margin-top: 6px;
+    padding: 6px;
+    width: 100%;
+    background: #ff4444;
+    border: none;
+    border-radius: 6px;
+    color: white;
 }
