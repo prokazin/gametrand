@@ -9,36 +9,49 @@
 </head>
 <body>
   <div id="app">
-    <h1>Trading Game</h1>
-    <div id="balance">Баланс: $<span id="balanceValue">1000</span></div>
-    <div id="leverage">
-      Плечо: 
-      <select id="leverageSelect">
-        <option value="1">1x</option>
-        <option value="2">2x</option>
-        <option value="5">5x</option>
-        <option value="10">10x</option>
-      </select>
-    </div>
-    <canvas id="chart" height="300"></canvas>
-    <div id="controls">
-      <button id="longBtn">LONG</button>
-      <button id="shortBtn">SHORT</button>
-      <button id="closeBtn">Закрыть сделку</button>
-      <button id="buyCurrencyBtn">Купить $ через Stars</button>
-    </div>
-    <div id="historyContainer">
-      <h3>История сделок</h3>
-      <ul id="historyList"></ul>
-    </div>
-    <div id="eventsContainer">
-      <h3>Рыночные события</h3>
-      <ul id="eventsList"></ul>
-    </div>
-    <div id="leaderboardContainer">
-      <h3>Рейтинг игроков</h3>
-      <ul id="leaderboardList"></ul>
-    </div>
+    <header>
+      <h1>Trading Game</h1>
+      <div id="balance">Баланс: $<span id="balanceValue">1000</span></div>
+      <div id="currencySelector">
+        Валюта: 
+        <select id="currencySelect">
+          <option value="0">CoinA</option>
+          <option value="1">CoinB</option>
+          <option value="2">CoinC</option>
+        </select>
+      </div>
+      <div id="leverage">
+        Плечо: 
+        <select id="leverageSelect">
+          <option value="1">1x</option>
+          <option value="2">2x</option>
+          <option value="5">5x</option>
+          <option value="10">10x</option>
+        </select>
+      </div>
+    </header>
+    
+    <main>
+      <canvas id="chart" height="300"></canvas>
+      <div id="controls">
+        <button id="longBtn">LONG</button>
+        <button id="shortBtn">SHORT</button>
+        <button id="closeBtn">Закрыть сделку</button>
+        <button id="buyCurrencyBtn">Купить $ через Stars</button>
+      </div>
+      
+      <div id="historyContainer">
+        <h3>История сделок</h3>
+        <ul id="historyList"></ul>
+      </div>
+
+      <div id="leaderboardContainer">
+        <h3>Рейтинг игроков</h3>
+        <ul id="leaderboardList"></ul>
+      </div>
+    </main>
+    
+    <div id="notification"></div>
   </div>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="script.js"></script>
