@@ -1,47 +1,52 @@
-// ==== Настройки игры ====
+// ==== Telegram WebApp ====
 const Telegram = window.Telegram.WebApp;
 Telegram.expand();
 
+// ==== Настройки игры ====
 let balance = parseFloat(localStorage.getItem('balance')) || 1000;
 let leverage = 1;
 let positions = [];
 let history = JSON.parse(localStorage.getItem('history')) || [];
 let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
 let events = [];
+
 const currencies = [
-  { name: 'CoinA', price: 10, history: [] },
-  { name: 'CoinB', price: 5, history: [] },
-  { name: 'CoinC', price: 1, history: [] },
+  { name: 'CoinA', price: 46, history: [] },
+  { name: 'CoinB', price: 46, history: [] },
+  { name: 'CoinC', price: 46, history: [] }
 ];
 
+let currentCurrencyIndex = 0;
+
+// ==== Chart.js ====
 const ctx = document.getElementById('chart').getContext('2d');
 let chart = new Chart(ctx, {
   type: 'line',
   data: {
     labels: Array(30).fill(''),
-    datasets: currencies.map(c => ({
-      label: c.name,
-      data: Array(30).fill(c.price),
-      borderColor: getRandomColor(),
-      fill: false
-    }))
+    datasets: [{
+      label: currencies[currentCurrencyIndex].name,
+      data: Array(30).fill(currencies[currentCurrencyIndex].price),
+      borderColor: '#ffdd59',
+      fill: false,
+      tension: 0.3
+    }]
   },
-  options: {
-    responsive: true,
-    animation: false,
-    scales: { x:{display:false}, y:{beginAtZero:true} }
-  }
+  options: { responsive:true, animation:false, scales:{ x:{display:false}, y:{beginAtZero:false} } }
 });
-
-updateUI();
-setInterval(updatePrices, 1000);
-setInterval(triggerEvent, 90000);
 
 // ==== UI ====
 document.getElementById('balanceValue').textContent = balance.toFixed(2);
+
+document.getElementById('currencySelect').addEventListener('change', e => {
+  currentCurrencyIndex = parseInt(e.target.value);
+  updateChartCurrency();
+});
+
 document.getElementById('leverageSelect').addEventListener('change', e => {
   leverage = parseInt(e.target.value);
 });
+
 document.getElementById('longBtn').addEventListener('click', () => openPosition('long'));
 document.getElementById('shortBtn').addEventListener('click', () => openPosition('short'));
 document.getElementById('closeBtn').addEventListener('click', closePositions);
@@ -51,43 +56,55 @@ document.getElementById('buyCurrencyBtn').addEventListener('click', buyCurrency)
 const positiveEvents = ["Рост инвестиций","Позитивные новости","Рост объема торгов"];
 const negativeEvents = ["Регуляторные проблемы","Взлом биржи","Резкий обвал рынка"];
 
-// ==== Функции ====
-function updateUI() {
-  document.getElementById('balanceValue').textContent = balance.toFixed(2);
-  const historyList = document.getElementById('historyList');
-  historyList.innerHTML = '';
-  history.slice(-10).forEach(h => {
-    const li = document.createElement('li');
-    li.textContent = `${h.type.toUpperCase()} ${h.currency} $${h.amount} @ ${h.price.toFixed(2)} P/L: ${h.PL.toFixed(2)}`;
-    historyList.appendChild(li);
-  });
-  const eventsList = document.getElementById('eventsList');
-  eventsList.innerHTML = '';
-  events.slice(-5).forEach(ev => {
-    const li = document.createElement('li');
-    li.textContent = ev;
-    eventsList.appendChild(li);
-  });
-  updateLeaderboard();
-}
+setInterval(updatePrices, 1000);
+setInterval(triggerEvent, 90000); // 1.5 минуты
 
-function updatePrices() {
-  currencies.forEach(c => {
-    let netEffect = positions.filter(p => p.currency===c.name).reduce((sum,p)=>p.type==='long'?sum+p.amount*0.01:sum-p.amount*0.01,0);
-    let change = (Math.random()-0.5)*0.5 + netEffect;
-    c.price = Math.max(0.01, c.price+change);
-    c.history.push(c.price);
-    if(c.history.length>30)c.history.shift();
-  });
-  chart.data.datasets.forEach((ds,i)=>ds.data=currencies[i].history);
+updateUI();
+
+// ==== Функции ====
+function updateChartCurrency(){
+  chart.data.datasets[0].label = currencies[currentCurrencyIndex].name;
+  chart.data.datasets[0].data = currencies[currentCurrencyIndex].history.slice(-30);
   chart.update();
 }
 
+function updateUI(){
+  document.getElementById('balanceValue').textContent = balance.toFixed(2);
+  const historyList = document.getElementById('historyList');
+  historyList.innerHTML = '';
+  history.slice(-10).forEach(h=>{
+    const li = document.createElement('li');
+    li.textContent=`${h.type.toUpperCase()} ${h.currency} $${h.amount} @ ${h.price.toFixed(2)} P/L: ${h.PL.toFixed(2)}`;
+    historyList.appendChild(li);
+  });
+  const lbList = document.getElementById('leaderboardList');
+  lbList.innerHTML='';
+  leaderboard.push({name:'Вы', balance});
+  leaderboard.sort((a,b)=>b.balance-a.balance);
+  leaderboard.slice(0,5).forEach(l=>{
+    const li = document.createElement('li');
+    li.textContent=`${l.name}: $${l.balance.toFixed(2)}`;
+    lbList.appendChild(li);
+  });
+}
+
+function updatePrices(){
+  currencies.forEach(c=>{
+    let delta = (Math.random()-0.5)*0.4; // плавные колебания
+    c.price += delta;
+    if(c.price<45)c.price=45;
+    if(c.price>47)c.price=47;
+    c.history.push(c.price);
+    if(c.history.length>30)c.history.shift();
+  });
+  updateChartCurrency();
+}
+
 function openPosition(type){
-  const currency = currencies[Math.floor(Math.random()*currencies.length)].name;
+  const currency = currencies[currentCurrencyIndex].name;
   const amount = 100*leverage;
-  positions.push({ type, currency, amount, price: currencies.find(c=>c.name===currency).price });
-  alert(`${type.toUpperCase()} открыта на ${currency} $${amount}`);
+  positions.push({ type, currency, amount, price: currencies[currentCurrencyIndex].price });
+  showNotification(`${type.toUpperCase()} открыта на ${currency} $${amount}`);
 }
 
 function closePositions(){
@@ -103,42 +120,37 @@ function closePositions(){
 }
 
 function buyCurrency(){
-  const invoicePayload = "buy_virtual_dollars";
-  const prices = [{ label: "1000$ игровая валюта", amount: 100*100 }]; // amount в копейках, 100 Stars = 1$
-
-  Telegram.WebApp.openInvoice({
-    title: "Покупка $",
-    description: "1000$ внутриигровой валюты",
-    payload: invoicePayload,
-    provider_token: "<YOUR_PROVIDER_TOKEN>",
-    currency: "RUB",
-    prices: prices,
-    photo_url: "",
-    need_name: false,
-    need_email: false,
-    need_phone_number: false,
-    need_shipping_address: false
-  });
+  if(Telegram.WebApp){
+    const invoicePayload="buy_virtual_dollars";
+    const prices=[{label:"1000$ игровая валюта", amount:100*100}]; // amount в копейках
+    Telegram.WebApp.openInvoice({
+      title:"Покупка $",
+      description:"1000$ внутриигровой валюты",
+      payload:invoicePayload,
+      provider_token:"<YOUR_PROVIDER_TOKEN>",
+      currency:"RUB",
+      prices:prices
+    });
+  }
 }
 
 Telegram.WebApp.onEvent('invoiceClosed', (res)=>{
   if(res.status==='paid'){
-    balance += 1000;
+    balance+=1000;
     saveGame();
     updateUI();
-    alert("Покупка успешна! +1000$");
+    showNotification("Покупка успешна! +1000$");
   }
 });
 
 function triggerEvent(){
   const evList = Math.random()<0.5 ? positiveEvents : negativeEvents;
   const ev = evList[Math.floor(Math.random()*evList.length)];
-  events.push(ev);
+  showNotification(ev);
   currencies.forEach(c=>{
-    let effect = (evList===positiveEvents?1:-1)*(Math.random()*3);
-    c.price = Math.max(0.01,c.price*(1+effect/100));
+    let effect = (evList===positiveEvents?1:-1)*(Math.random()*2);
+    c.price=Math.min(Math.max(c.price*(1+effect/100),45),47);
   });
-  updateUI();
 }
 
 function saveGame(){
@@ -147,17 +159,9 @@ function saveGame(){
   localStorage.setItem('leaderboard',JSON.stringify(leaderboard));
 }
 
-function updateLeaderboard(){
-  leaderboard=leaderboard.filter(l=>l.name);
-  leaderboard.push({name:"Вы", balance});
-  leaderboard.sort((a,b)=>b.balance-a.balance);
-  const lbList = document.getElementById('leaderboardList');
-  lbList.innerHTML="";
-  leaderboard.slice(0,5).forEach(l=>{
-    const li = document.createElement('li');
-    li.textContent=`${l.name}: $${l.balance.toFixed(2)}`;
-    lbList.appendChild(li);
-  });
+function showNotification(text){
+  const notif = document.getElementById('notification');
+  notif.textContent=text;
+  notif.style.display='block';
+  setTimeout(()=>{notif.style.display='none'},3000);
 }
-
-function getRandomColor(){ return '#'+Math.floor(Math.random()*16777215).toString(16); }
