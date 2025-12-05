@@ -1,0 +1,53 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f4;
+}
+
+#app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
+h1 {
+  text-align: center;
+}
+
+#balance, #leverage {
+  margin: 10px 0;
+  font-size: 1.2em;
+}
+
+#controls {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+#controls button {
+  flex: 1 1 30%;
+  margin: 5px;
+  padding: 10px;
+  font-size: 1em;
+}
+
+#historyContainer, #eventsContainer, #leaderboardContainer {
+  margin-top: 15px;
+  background: #fff;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+li {
+  padding: 3px 0;
+}
