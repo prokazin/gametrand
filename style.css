@@ -1,56 +1,234 @@
-:root {
-  --bg: #0f1720;
-  --panel: #11161b;
-  --accent: #0b84ff;
-  --green: #00c13d;
-  --red: #ff3b3b;
-  --text: #e6eef3;
+// Trading Game — Lightweight Charts implementation
+// Features: chart, price generator, LONG/SHORT, leverage, markers, open positions, history, rating, localStorage
+
+// ---------- State & Storage ----------
+let balance = parseFloat(localStorage.getItem('tg_balance')) || 1000.0;
+let openPositions = JSON.parse(localStorage.getItem('tg_open')) || [];
+let history = JSON.parse(localStorage.getItem('tg_hist')) || [];
+let rating = JSON.parse(localStorage.getItem('tg_rating')) || [];
+
+const balanceEl = document.getElementById('balance');
+const openBox = document.getElementById('openPositions');
+const historyBox = document.getElementById('history');
+const ratingBox = document.getElementById('rating');
+
+balanceEl.textContent = `$${balance.toFixed(2)}`;
+
+// ---------- Chart setup ----------
+const chartContainer = document.getElementById('chart');
+const chart = LightweightCharts.createChart(chartContainer, {
+  layout: { backgroundColor: '#071016', textColor: '#e6eef3' },
+  width: chartContainer.clientWidth,
+  height: 360,
+  rightPriceScale: { visible: true },
+  timeScale: { timeVisible: false, secondsVisible: true },
+  grid: { vertLines: { color: '#0b1620' }, horzLines: { color: '#0b1620' } }
+});
+window.addEventListener('resize', () => chart.applyOptions({ width: chartContainer.clientWidth }));
+
+const lineSeries = chart.addLineSeries({
+  color: '#0b84ff',
+  lineWidth: 2,
+});
+
+// data arrays
+let price = 100 + Math.random() * 50;
+let data = [];     // {time, value}
+let markers = [];  // for setMarkers
+
+// helper: current unix second
+function nowSec() { return Math.floor(Date.now() / 1000); }
+
+// seed initial data (60 points, 1s step)
+(function seed(){
+  let t = nowSec() - 60;
+  for(let i=0;i<60;i++){
+    price += (Math.random()-0.5) * 1.8;
+    if (price < 0.1) price = 0.1;
+    data.push({ time: t + i, value: Number(price.toFixed(3)) });
+  }
+  lineSeries.setData(data);
+})();
+
+// ---------- Price updater ----------
+function tick(){
+  price += (Math.random()-0.5) * 2.2;
+  if (price < 0.01) price = 0.01;
+  const point = { time: nowSec(), value: Number(price.toFixed(3)) };
+  data.push(point);
+  if (data.length > 300) data.shift();
+  lineSeries.update(point);
+  // update positions display P&L live
+  renderOpenPositions();
+}
+const tickInterval = setInterval(tick, 900);
+
+// ---------- UI: coins ----------
+let currentCoin = 'TON';
+document.querySelectorAll('.coin-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.coin-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentCoin = btn.dataset.coin;
+    // reset price a bit to feel different
+    price = 20 + Math.random()*120;
+    data = [];
+    // seed few points so chart not empty
+    let t = nowSec() - 30;
+    for(let i=0;i<30;i++){
+      price += (Math.random()-0.5) * 2;
+      data.push({ time: t + i, value: Number(price.toFixed(3)) });
+    }
+    lineSeries.setData(data);
+    // clear markers to avoid mixing
+    markers = [];
+    lineSeries.setMarkers(markers);
+  });
+});
+// set default active
+document.querySelector('.coin-btn[data-coin="'+currentCoin+'"]').classList.add('active');
+
+// ---------- Leverage ----------
+let leverage = 1;
+document.getElementById('leverage').addEventListener('change', (e)=>{
+  leverage = Number(e.target.value) || 1;
+});
+
+// ---------- Open position (LONG/SHORT) ----------
+function openPosition(type){
+  const entry = Number(price.toFixed(3));
+  const pos = {
+    id: Date.now(),
+    coin: currentCoin,
+    type, // 'LONG' or 'SHORT'
+    entry,
+    leverage,
+    time: new Date().toLocaleString()
+  };
+  openPositions.push(pos);
+
+  // add marker on chart
+  markers.push({
+    time: data.length ? data[data.length-1].time : nowSec(),
+    position: type === 'LONG' ? 'below' : 'above',
+    color: type === 'LONG' ? '#00c13d' : '#ff3b3b',
+    shape: type === 'LONG' ? 'arrowUp' : 'arrowDown',
+    text: `${type} ${pos.leverage}x`
+  });
+  lineSeries.setMarkers(markers);
+
+  saveAll();
+  renderOpenPositions();
 }
 
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Inter, system-ui, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+document.getElementById('longBtn').addEventListener('click', ()=> openPosition('LONG'));
+document.getElementById('shortBtn').addEventListener('click', ()=> openPosition('SHORT'));
+
+// ---------- Close position ----------
+function closePosition(id){
+  const idx = openPositions.findIndex(p=>p.id===id);
+  if (idx === -1) return;
+  const pos = openPositions[idx];
+
+  // pnl calc: LONG => (price - entry) * leverage
+  // SHORT => (entry - price) * leverage
+  let pnl = (pos.type === 'LONG' ? (price - pos.entry) : (pos.entry - price)) * pos.leverage;
+  pnl = Number(pnl.toFixed(3));
+  balance += pnl;
+
+  // add to history
+  history.unshift({
+    coin: pos.coin,
+    type: pos.type,
+    entry: pos.entry,
+    exit: Number(price.toFixed(3)),
+    leverage: pos.leverage,
+    pnl,
+    timeOpen: pos.time,
+    timeClose: new Date().toLocaleString()
+  });
+
+  // remove open
+  openPositions.splice(idx,1);
+
+  // update rating
+  rating.push({ score: balance, time: Date.now() });
+
+  saveAll();
+  renderOpenPositions();
+  renderHistory();
+  renderRating();
+  balanceEl.textContent = `$${balance.toFixed(2)}`;
+
+  // optionally remove the corresponding marker (leave historical markers as-is)
+  // rebuild markers without the latest matching marker id (simple approach: keep all markers for visual history)
 }
 
-.app { padding: 12px; max-width: 1100px; margin: 0 auto; }
-
-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-h1 { font-size: 18px; margin: 0; }
-.balance { font-weight: 600; }
-
-.controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
-.coins { display: flex; gap: 8px; flex: 1; }
-.coin-btn {
-  background: var(--panel); color: var(--text); border: 1px solid #1f2a33; padding: 8px 10px; border-radius: 8px;
-}
-.coin-btn.active { background: var(--accent); color: #fff; }
-
-.trade-controls { display:flex; gap:12px; align-items:center; }
-.trade-controls label { font-size: 14px; display:flex; gap:8px; align-items:center; }
-select { padding: 6px 8px; border-radius:6px; border: none; background: #0b1115; color:var(--text); }
-
-.trade-buttons { display:flex; gap:8px; }
-.long, .short {
-  padding: 8px 14px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer;
-}
-.long { background: var(--green); color: #04120a; }
-.short { background: var(--red); color: #2b0b0b; }
-
-.chart { height: 360px; background: #071016; border-radius: 8px; padding: 8px; margin-bottom: 12px; }
-
-.panels { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.panel { background: var(--panel); padding: 10px; border-radius: 8px; }
-@media(min-width:900px) {
-  .panels { grid-template-columns: 1fr 1fr 320px; }
+// ---------- Render UI ----------
+function renderOpenPositions(){
+  openBox.innerHTML = '';
+  if (openPositions.length === 0){
+    openBox.innerHTML = '<div class="small">Пусто</div>';
+    return;
+  }
+  openPositions.forEach(pos=>{
+    const pnl = (pos.type === 'LONG' ? (price - pos.entry) : (pos.entry - price)) * pos.leverage;
+    const item = document.createElement('div');
+    item.className = 'position';
+    item.innerHTML = `
+      <div><strong>${pos.coin}</strong> · ${pos.type} · ${pos.leverage}x</div>
+      <div class="small">Вход: ${pos.entry.toFixed(3)} · Текущая: ${price.toFixed(3)}</div>
+      <div style="margin-top:6px">P&L: <strong>${pnl >= 0 ? '+' : ''}${pnl.toFixed(3)}</strong></div>
+      <button class="btn-close">Закрыть позицию</button>
+    `;
+    item.querySelector('.btn-close').addEventListener('click', ()=> closePosition(pos.id));
+    openBox.appendChild(item);
+  });
 }
 
-.position, .history-item, .rating-item {
-  background: #0c1216; padding: 8px; border-radius: 6px; margin-bottom: 8px; font-size: 14px;
+function renderHistory(){
+  historyBox.innerHTML = '';
+  if (!history.length){
+    historyBox.innerHTML = '<div class="small">История пуста</div>'; return;
+  }
+  history.forEach(h=>{
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div><strong>${h.coin}</strong> · ${h.type} · ${h.leverage}x</div>
+      <div class="small">${h.timeOpen} → ${h.timeClose}</div>
+      <div> ${h.entry.toFixed(3)} → ${h.exit.toFixed(3)} · P&L: <strong>${h.pnl >= 0 ? '+' : ''}${h.pnl.toFixed(3)}</strong></div>
+    `;
+    historyBox.appendChild(div);
+  });
 }
-.btn-close { margin-top:8px; width:100%; padding:8px; background:#ff5b5b; border:none; color:#fff; border-radius:6px; cursor:pointer; }
-.small { font-size: 13px; color:#9fb2c6; }
+
+function renderRating(){
+  ratingBox.innerHTML = '';
+  if (!rating.length){ ratingBox.innerHTML = '<div class="small">Нет данных</div>'; return; }
+  // show top 10 by score desc
+  const top = [...rating].sort((a,b)=>b.score - a.score).slice(0,10);
+  top.forEach(r=>{
+    const d = document.createElement('div');
+    d.className = 'rating-item';
+    d.textContent = `Баланс: $${Number(r.score).toFixed(2)}`;
+    ratingBox.appendChild(d);
+  });
+}
+
+// ---------- Persistence ----------
+function saveAll(){
+  localStorage.setItem('tg_balance', String(balance));
+  localStorage.setItem('tg_open', JSON.stringify(openPositions));
+  localStorage.setItem('tg_hist', JSON.stringify(history));
+  localStorage.setItem('tg_rating', JSON.stringify(rating));
+}
+
+// initial render
+renderOpenPositions();
+renderHistory();
+renderRating();
+balanceEl.textContent = `$${balance.toFixed(2)}`;
+
+// ---------- Safety: before unload save ----------
+window.addEventListener('beforeunload', saveAll);
