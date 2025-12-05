@@ -12,7 +12,7 @@
 <div class="app">
 
     <header>
-        <h2>Crypto Trading</h2>
+        <h2>Crypto Trading Game</h2>
         <div class="balance">Баланс: <span id="balance">$1000</span></div>
     </header>
 
@@ -20,10 +20,12 @@
         <button class="tab active" data-tab="trade">Торговля</button>
         <button class="tab" data-tab="positions">Позиции</button>
         <button class="tab" data-tab="history">История</button>
+        <button class="tab" data-tab="rating">Рейтинг</button>
     </div>
 
     <!-- Торговля -->
     <div class="tab-content active" id="trade">
+
         <div class="coin-selector">
             <button class="coin-btn" data-coin="TON">TON</button>
             <button class="coin-btn" data-coin="ETH">ETH</button>
@@ -32,22 +34,40 @@
 
         <div id="chart"></div>
 
+        <div class="leverage">
+            Плечо:
+            <select id="leverageSelect">
+                <option>1</option>
+                <option>2</option>
+                <option>5</option>
+                <option>10</option>
+                <option>20</option>
+                <option>50</option>
+            </select>x
+        </div>
+
         <div class="trade-panel">
-            <div>Цена: <span id="currentPrice">0</span></div>
-            <button id="buyBtn">Купить</button>
+            <button class="long-btn" id="longBtn">LONG</button>
+            <button class="short-btn" id="shortBtn">SHORT</button>
         </div>
     </div>
 
     <!-- Позиции -->
     <div class="tab-content" id="positions">
         <h3>Открытые позиции</h3>
-        <div id="openPositionsList"></div>
+        <div id="openPositions"></div>
     </div>
 
     <!-- История -->
     <div class="tab-content" id="history">
         <h3>История сделок</h3>
         <div id="historyList"></div>
+    </div>
+
+    <!-- Рейтинг -->
+    <div class="tab-content" id="rating">
+        <h3>Рейтинг игроков</h3>
+        <div id="ratingList"></div>
     </div>
 
 </div>
