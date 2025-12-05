@@ -1,59 +1,47 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trading Game</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Game</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>Trading Game</h1>
-      <div id="balance">Баланс: $<span id="balanceValue">1000</span></div>
-      <div id="currencySelector">
-        Валюта: 
-        <select id="currencySelect">
-          <option value="0">CoinA</option>
-          <option value="1">CoinB</option>
-          <option value="2">CoinC</option>
-        </select>
-      </div>
-      <div id="leverage">
-        Плечо: 
-        <select id="leverageSelect">
-          <option value="1">1x</option>
-          <option value="2">2x</option>
-          <option value="5">5x</option>
-          <option value="10">10x</option>
-        </select>
-      </div>
-    </header>
-    
-    <main>
-      <canvas id="chart" height="300"></canvas>
-      <div id="controls">
-        <button id="longBtn">LONG</button>
-        <button id="shortBtn">SHORT</button>
-        <button id="closeBtn">Закрыть сделку</button>
-        <button id="buyCurrencyBtn">Купить $ через Stars</button>
-      </div>
-      
-      <div id="historyContainer">
-        <h3>История сделок</h3>
-        <ul id="historyList"></ul>
-      </div>
 
-      <div id="leaderboardContainer">
-        <h3>Рейтинг игроков</h3>
-        <ul id="leaderboardList"></ul>
-      </div>
-    </main>
-    
-    <div id="notification"></div>
-  </div>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="script.js"></script>
+<div class="app">
+
+    <header>
+        <h2>Crypto Trading Game</h2>
+        <div class="balance">Баланс: <span id="balance">$1000</span></div>
+    </header>
+
+    <div class="coin-selector">
+        <button class="coin-btn" data-coin="BTC">BTC</button>
+        <button class="coin-btn" data-coin="ETH">ETH</button>
+        <button class="coin-btn" data-coin="DOGE">DOGE</button>
+    </div>
+
+    <div id="chart"></div>
+
+    <div class="trade-panel">
+        <div>Цена: <span id="currentPrice">0</span></div>
+        <button id="buyBtn">Купить</button>
+        <button id="sellBtn">Продать</button>
+    </div>
+
+    <div class="position">
+        <p>Открытая позиция: <span id="positionInfo">нет</span></p>
+        <p>P&L: <span id="pnl">0</span></p>
+    </div>
+
+    <h3>История сделок</h3>
+    <div id="history"></div>
+
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
