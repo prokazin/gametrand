@@ -1,66 +1,143 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Trading Game — Lightweight Charts</title>
-  <link rel="stylesheet" href="style.css" />
-  <!-- Lightweight Charts (standalone build) -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Trading Game</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
-  <div class="app">
-    <header>
-      <h1>Trading Game</h1>
-      <div class="balance">Баланс: <span id="balance">$1000.00</span></div>
-    </header>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-coins"></i> Crypto Trading Game</h1>
+            <div class="balance-container">
+                <div class="balance">
+                    <span class="balance-label">Balance:</span>
+                    <span id="balance" class="balance-value">$1,000.00</span>
+                </div>
+                <button id="reset-game" class="btn-reset"><i class="fas fa-redo"></i> Reset Game</button>
+            </div>
+        </header>
 
-    <section class="controls">
-      <div class="coins">
-        <button class="coin-btn" data-coin="TON">TON</button>
-        <button class="coin-btn" data-coin="ETH">ETH</button>
-        <button class="coin-btn" data-coin="DOGE">DOGE</button>
-      </div>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <div class="coin-selector">
+                            <label for="coin-select">Coin:</label>
+                            <select id="coin-select">
+                                <option value="TON">TON - $2.50</option>
+                                <option value="ETH">ETH - $3,200.00</option>
+                                <option value="DOGE">DOGE - $0.15</option>
+                            </select>
+                            <div class="price-info">
+                                <span id="current-price-label">TON: $2.50</span>
+                                <span id="price-change" class="positive">+0.00%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="chart"></div>
+                </div>
 
-      <div class="trade-controls">
-        <label>Плечо:
-          <select id="leverage">
-            <option value="1">1x</option>
-            <option value="2">2x</option>
-            <option value="5">5x</option>
-            <option value="10">10x</option>
-            <option value="20">20x</option>
-            <option value="50">50x</option>
-          </select>
-        </label>
+                <div class="trade-panel">
+                    <h3><i class="fas fa-exchange-alt"></i> Trade Panel</h3>
+                    
+                    <div class="trade-row">
+                        <div class="trade-type">
+                            <button id="long-btn" class="btn-long active"><i class="fas fa-arrow-up"></i> LONG</button>
+                            <button id="short-btn" class="btn-short"><i class="fas fa-arrow-down"></i> SHORT</button>
+                        </div>
+                        
+                        <div class="leverage-selector">
+                            <label for="leverage">Leverage:</label>
+                            <select id="leverage">
+                                <option value="1">1x</option>
+                                <option value="2">2x</option>
+                                <option value="5">5x</option>
+                                <option value="10">10x</option>
+                                <option value="20">20x</option>
+                                <option value="50" selected>50x</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="trade-row">
+                        <div class="amount-input">
+                            <label for="amount">Amount ($):</label>
+                            <input type="number" id="amount" min="1" max="10000" value="100">
+                            <div class="amount-buttons">
+                                <button class="btn-amount" data-mult="0.25">25%</button>
+                                <button class="btn-amount" data-mult="0.5">50%</button>
+                                <button class="btn-amount" data-mult="0.75">75%</button>
+                                <button class="btn-amount" data-mult="1">100%</button>
+                            </div>
+                        </div>
+                        
+                        <div class="position-info">
+                            <div>Position: <span id="position-size">$5,000.00</span></div>
+                            <div>Fees: <span id="fees">$0.10</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="trade-row">
+                        <button id="open-position" class="btn-open-position"><i class="fas fa-play"></i> Open Position</button>
+                        <div class="risk-warning">
+                            <i class="fas fa-exclamation-triangle"></i> High leverage = High risk
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="trade-buttons">
-          <button id="longBtn" class="long">LONG</button>
-          <button id="shortBtn" class="short">SHORT</button>
+            <div class="right-panel">
+                <div class="positions-container">
+                    <h3><i class="fas fa-chart-line"></i> Open Positions</h3>
+                    <div id="open-positions">
+                        <div class="empty-positions">
+                            <i class="fas fa-box-open"></i>
+                            <p>No open positions</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab active" data-tab="history"><i class="fas fa-history"></i> Trade History</button>
+                    <button class="tab" data-tab="ranking"><i class="fas fa-trophy"></i> Player Ranking</button>
+                </div>
+                
+                <div class="tab-content">
+                    <div id="history-tab" class="tab-pane active">
+                        <div id="trade-history">
+                            <div class="empty-history">
+                                <i class="fas fa-scroll"></i>
+                                <p>No trade history yet</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="ranking-tab" class="tab-pane">
+                        <div id="player-ranking">
+                            <div class="ranking-header">
+                                <span>Rank</span>
+                                <span>Player</span>
+                                <span>Balance</span>
+                            </div>
+                            <div class="empty-ranking">
+                                <i class="fas fa-medal"></i>
+                                <p>No players in ranking yet</p>
+                            </div>
+                        </div>
+                        <div class="add-player">
+                            <input type="text" id="player-name" placeholder="Your name for ranking">
+                            <button id="add-to-ranking" class="btn-add"><i class="fas fa-user-plus"></i> Add to Ranking</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </section>
+    </div>
 
-    <div id="chart" class="chart"></div>
-
-    <section class="panels">
-      <div class="panel">
-        <h3>Открытые позиции</h3>
-        <div id="openPositions"></div>
-      </div>
-
-      <div class="panel">
-        <h3>История сделок</h3>
-        <div id="history"></div>
-      </div>
-
-      <div class="panel">
-        <h3>Рейтинг игроков</h3>
-        <div id="rating"></div>
-      </div>
-    </section>
-  </div>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
