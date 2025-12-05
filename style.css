@@ -6,7 +6,7 @@ body {
 }
 
 .app {
-    padding: 15px;
+    padding: 12px;
 }
 
 header {
@@ -59,21 +59,29 @@ header {
 
 .trade-panel {
     display: flex;
-    justify-content: space-between;
+    gap: 10px;
     margin-top: 10px;
 }
 
-.trade-panel button {
-    padding: 10px;
-    border: none;
-    background: #0077ff;
-    color: white;
+.long-btn {
+    background: #00c13d;
     flex: 1;
-    margin-left: 10px;
+    padding: 10px;
     border-radius: 6px;
+    border: none;
+    color: white;
 }
 
-.position-item, .history-item {
+.short-btn {
+    background: #ff3b3b;
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    color: white;
+}
+
+.position-item, .history-item, .rating-item {
     background: #1a1a1a;
     padding: 10px;
     border-radius: 6px;
@@ -82,11 +90,11 @@ header {
 }
 
 .close-btn {
+    width: 100%;
     margin-top: 6px;
     padding: 6px;
-    width: 100%;
     background: #ff4444;
     border: none;
-    border-radius: 6px;
     color: white;
+    border-radius: 6px;
 }
