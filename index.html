@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trading Game</title>
     <link rel="stylesheet" href="style.css">
-
-    <!-- ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
@@ -14,31 +12,43 @@
 <div class="app">
 
     <header>
-        <h2>Crypto Trading Game</h2>
+        <h2>Crypto Trading</h2>
         <div class="balance">Баланс: <span id="balance">$1000</span></div>
     </header>
 
-    <div class="coin-selector">
-        <button class="coin-btn" data-coin="BTC">BTC</button>
-        <button class="coin-btn" data-coin="ETH">ETH</button>
-        <button class="coin-btn" data-coin="DOGE">DOGE</button>
+    <div class="tabs">
+        <button class="tab active" data-tab="trade">Торговля</button>
+        <button class="tab" data-tab="positions">Позиции</button>
+        <button class="tab" data-tab="history">История</button>
     </div>
 
-    <div id="chart"></div>
+    <!-- Торговля -->
+    <div class="tab-content active" id="trade">
+        <div class="coin-selector">
+            <button class="coin-btn" data-coin="TON">TON</button>
+            <button class="coin-btn" data-coin="ETH">ETH</button>
+            <button class="coin-btn" data-coin="DOGE">DOGE</button>
+        </div>
 
-    <div class="trade-panel">
-        <div>Цена: <span id="currentPrice">0</span></div>
-        <button id="buyBtn">Купить</button>
-        <button id="sellBtn">Продать</button>
+        <div id="chart"></div>
+
+        <div class="trade-panel">
+            <div>Цена: <span id="currentPrice">0</span></div>
+            <button id="buyBtn">Купить</button>
+        </div>
     </div>
 
-    <div class="position">
-        <p>Открытая позиция: <span id="positionInfo">нет</span></p>
-        <p>P&L: <span id="pnl">0</span></p>
+    <!-- Позиции -->
+    <div class="tab-content" id="positions">
+        <h3>Открытые позиции</h3>
+        <div id="openPositionsList"></div>
     </div>
 
-    <h3>История сделок</h3>
-    <div id="history"></div>
+    <!-- История -->
+    <div class="tab-content" id="history">
+        <h3>История сделок</h3>
+        <div id="historyList"></div>
+    </div>
 
 </div>
 
