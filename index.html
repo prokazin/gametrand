@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trading Game</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>Trading Game</h1>
+    <div id="balance">Баланс: $<span id="balanceValue">1000</span></div>
+    <div id="leverage">
+      Плечо: 
+      <select id="leverageSelect">
+        <option value="1">1x</option>
+        <option value="2">2x</option>
+        <option value="5">5x</option>
+        <option value="10">10x</option>
+      </select>
+    </div>
+    <canvas id="chart" height="300"></canvas>
+    <div id="controls">
+      <button id="longBtn">LONG</button>
+      <button id="shortBtn">SHORT</button>
+      <button id="closeBtn">Закрыть сделку</button>
+      <button id="buyCurrencyBtn">Купить $ через Stars</button>
+    </div>
+    <div id="historyContainer">
+      <h3>История сделок</h3>
+      <ul id="historyList"></ul>
+    </div>
+    <div id="eventsContainer">
+      <h3>Рыночные события</h3>
+      <ul id="eventsList"></ul>
+    </div>
+    <div id="leaderboardContainer">
+      <h3>Рейтинг игроков</h3>
+      <ul id="leaderboardList"></ul>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
