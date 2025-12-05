@@ -1,47 +1,66 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Game</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Trading Game — Lightweight Charts</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Lightweight Charts (standalone build) -->
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body>
+  <div class="app">
+    <header>
+      <h1>Trading Game</h1>
+      <div class="balance">Баланс: <span id="balance">$1000.00</span></div>
+    </header>
 
-<div class="app">
-
-    <h2>Trading Game</h2>
-    <div class="balance">Баланс: <span id="balance">$1000</span></div>
-
-    <div class="coin-selector">
+    <section class="controls">
+      <div class="coins">
         <button class="coin-btn" data-coin="TON">TON</button>
         <button class="coin-btn" data-coin="ETH">ETH</button>
         <button class="coin-btn" data-coin="DOGE">DOGE</button>
-    </div>
+      </div>
 
-    <div id="chart"></div>
-
-    <div class="leverage">
-        Плечо:
-        <select id="leverage">
+      <div class="trade-controls">
+        <label>Плечо:
+          <select id="leverage">
             <option value="1">1x</option>
             <option value="2">2x</option>
             <option value="5">5x</option>
             <option value="10">10x</option>
             <option value="20">20x</option>
-        </select>
-    </div>
+            <option value="50">50x</option>
+          </select>
+        </label>
 
-    <div class="trade-panel">
-        <button id="longBtn" class="long">LONG</button>
-        <button id="shortBtn" class="short">SHORT</button>
-    </div>
+        <div class="trade-buttons">
+          <button id="longBtn" class="long">LONG</button>
+          <button id="shortBtn" class="short">SHORT</button>
+        </div>
+      </div>
+    </section>
 
-    <div id="positions"></div>
+    <div id="chart" class="chart"></div>
 
-</div>
+    <section class="panels">
+      <div class="panel">
+        <h3>Открытые позиции</h3>
+        <div id="openPositions"></div>
+      </div>
 
-<script src="script.js"></script>
+      <div class="panel">
+        <h3>История сделок</h3>
+        <div id="history"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Рейтинг игроков</h3>
+        <div id="rating"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
